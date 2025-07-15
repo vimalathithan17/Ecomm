@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from .models import Product, Order, Wishlist
 
-# Create your views here.
+
 
 def product_list(request):
     query = request.GET.get('q', '')
@@ -105,6 +105,7 @@ def remove_from_wishlist(request, product_id):
     
     return redirect('wishlist_view')
 
+@login_required
 def checkout(request):
     cart = request.session.get('cart', {})
     if not cart:
@@ -157,3 +158,11 @@ def checkout(request):
 def thank_you(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     return render(request, 'shop/thank_you.html', {'order': order})
+
+def product_detail(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    previous_url = request.META.get('HTTP_REFERER', '/')
+    return render(request, 'shop/product_detail.html', {
+        'product': product,
+        'previous_url': previous_url
+    })
