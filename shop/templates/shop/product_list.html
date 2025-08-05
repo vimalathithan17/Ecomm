@@ -1,56 +1,138 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">Products</h1>
-    <form method="get" class="mb-4">
-        <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="Search by name..." value="{{ query }}">
-            <button class="btn btn-outline-secondary" type="submit">Search</button>
-            {% if query %}
-                <a href="?" class="btn btn-outline-danger">Clear</a>
-            {% endif %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container text-center">
+        <h1>Discover Amazing Tech Products</h1>
+        <p>Find the latest gadgets and electronics at unbeatable prices</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Search Section -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <form method="get" class="position-relative">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0" 
+                           placeholder="Search for products..." value="{{ query }}">
+                    <button class="btn btn-primary px-4" type="submit">
+                        <i class="bi bi-search me-2"></i>Search
+                    </button>
+                    {% if query %}
+                        <a href="?" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
         </div>
-    </form>
-    <div class="row">
-        {% for product in products %}
-        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-            <a href="{% url 'product_detail' product.id %}" style="text-decoration: none; color: inherit;">
-            <div class="card h-100 position-relative" style="font-size: 0.92rem;">
-                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 150px; object-fit: cover;">
-                <div class="card-body d-flex flex-column p-2">
-                    <h6 class="card-title mb-1" style="font-size: 1rem;">{{ product.name }}</h6>
-                    <p class="card-text flex-grow-1 mb-2" style="font-size: 0.92rem;">{{ product.description|truncatewords:12 }}</p>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="card-text mb-0"><strong>${{ product.price }}</strong></span>
-                        {% if user.is_authenticated %}
+    </div>
+
+    <!-- Products Grid -->
+    {% if products %}
+        <div class="product-grid">
+            {% for product in products %}
+            <div class="card product-card h-100">
+                <div class="position-relative">
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" 
+                         style="height: 200px; object-fit: cover;">
+                    {% if user.is_authenticated %}
+                        <div class="position-absolute top-0 end-0 m-2">
                             {% if product in wishlist_items %}
                                 <form method="post" action="{% url 'remove_from_wishlist' product.id %}" style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-danger border-0 p-0" title="Remove from wishlist">
-                                        <i class="bi bi-heart-fill text-danger"></i>
+                                    <button type="submit" class="wishlist-btn text-danger" title="Remove from wishlist">
+                                        <i class="bi bi-heart-fill"></i>
                                     </button>
                                 </form>
                             {% else %}
                                 <form method="post" action="{% url 'add_to_wishlist' product.id %}" style="display: inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary border-0 p-0" title="Add to wishlist">
+                                    <button type="submit" class="wishlist-btn text-muted" title="Add to wishlist">
                                         <i class="bi bi-heart"></i>
                                     </button>
                                 </form>
                             {% endif %}
-                        {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-body d-flex flex-column p-3">
+                    <h5 class="card-title mb-2">{{ product.name }}</h5>
+                    <p class="card-text text-muted flex-grow-1 mb-3">{{ product.description|truncatewords:15 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="price-badge">${{ product.price }}</span>
+                        <small class="text-muted">
+                            <i class="bi bi-star-fill text-warning me-1"></i>4.5
+                        </small>
                     </div>
+                    
                     <form method="post" action="{% url 'add_to_cart' product.id %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-primary btn-sm w-100">Add to Cart</button>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                        </button>
                     </form>
                 </div>
             </div>
-            </a>
+            {% endfor %}
         </div>
-        {% empty %}
-        <p>No products available.</p>
-        {% endfor %}
-    </div>
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-search display-1 text-muted"></i>
+            </div>
+            <h3 class="text-muted mb-3">No products found</h3>
+            <p class="text-muted mb-4">
+                {% if query %}
+                    No products match your search for "{{ query }}". Try different keywords.
+                {% else %}
+                    No products are currently available. Please check back later.
+                {% endif %}
+            </p>
+            {% if query %}
+                <a href="?" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-2"></i>View All Products
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
+
+<style>
+    .product-card {
+        transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    .product-card .card-img-top {
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .input-group-text {
+        border-radius: 12px 0 0 12px;
+    }
+    
+    .input-group .form-control {
+        border-radius: 0 12px 12px 0;
+    }
+    
+    .input-group .btn {
+        border-radius: 12px;
+        margin-left: 0.5rem;
+    }
+</style>
 {% endblock %} 

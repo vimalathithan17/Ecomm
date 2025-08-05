@@ -105,7 +105,6 @@ def remove_from_wishlist(request, product_id):
     
     return redirect('wishlist_view')
 
-@login_required
 def checkout(request):
     cart = request.session.get('cart', {})
     if not cart:

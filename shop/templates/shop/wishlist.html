@@ -1,41 +1,125 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-4">
-    <h1 class="mb-4">My Wishlist</h1>
-    
+<div class="hero-section">
+    <div class="container text-center">
+        <h1>My Wishlist</h1>
+        <p>Save your favorite products for later</p>
+    </div>
+</div>
+
+<div class="container">
     {% if wishlist.products.all %}
-        <div class="row">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0">
+                <i class="bi bi-heart me-2"></i>{{ wishlist.products.count }} Items
+            </h3>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-plus me-2"></i>Add More Items
+            </a>
+        </div>
+        
+        <div class="product-grid">
             {% for product in wishlist.products.all %}
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="card h-100 position-relative">
-                    <div class="position-absolute top-0 end-0 p-2">
+            <div class="card product-card h-100">
+                <div class="position-relative">
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" 
+                         style="height: 200px; object-fit: cover;">
+                    <div class="position-absolute top-0 end-0 m-2">
                         <form method="post" action="{% url 'remove_from_wishlist' product.id %}" style="display: inline;">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Remove from wishlist">
-                                <i class="bi bi-heart-fill text-danger"></i>
+                            <button type="submit" class="wishlist-btn text-danger" title="Remove from wishlist">
+                                <i class="bi bi-heart-fill fs-4"></i>
                             </button>
                         </form>
                     </div>
-                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
-                    <div class="card-body d-flex flex-column">
-                        <h6 class="card-title">{{ product.name }}</h6>
-                        <p class="card-text flex-grow-1">{{ product.description|truncatewords:15 }}</p>
-                        <p class="card-text"><strong>${{ product.price }}</strong></p>
+                    <div class="position-absolute top-0 start-0 m-2">
+                        <span class="badge bg-primary">Wishlist</span>
+                    </div>
+                </div>
+                <div class="card-body d-flex flex-column p-3">
+                    <h5 class="card-title mb-2">{{ product.name }}</h5>
+                    <p class="card-text text-muted flex-grow-1 mb-3">{{ product.description|truncatewords:15 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="price-badge">${{ product.price }}</span>
+                        <small class="text-muted">
+                            <i class="bi bi-star-fill text-warning me-1"></i>4.5
+                        </small>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
                         <form method="post" action="{% url 'add_to_cart' product.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-primary btn-sm w-100">Add to Cart</button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                            </button>
                         </form>
+                        <a href="{% url 'product_detail' product.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-eye me-2"></i>View Details
+                        </a>
                     </div>
                 </div>
             </div>
             {% endfor %}
         </div>
+        
+        <!-- Summary Card -->
+        <div class="row mt-5">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-heart text-danger display-4 mb-3"></i>
+                        <h5>Love Your Wishlist</h5>
+                        <p class="text-muted">Keep track of products you're interested in and get notified when prices drop.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="bi bi-bell text-primary display-4 mb-3"></i>
+                        <h5>Price Alerts</h5>
+                        <p class="text-muted">We'll notify you when items in your wishlist go on sale or come back in stock.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     {% else %}
+        <!-- Empty Wishlist -->
         <div class="text-center py-5">
-            <h3>Your wishlist is empty</h3>
-            <p class="text-muted">Add some products to your wishlist to get started!</p>
-            <a href="{% url 'product_list' %}" class="btn btn-primary">Browse Products</a>
+            <div class="mb-4">
+                <i class="bi bi-heart display-1 text-muted"></i>
+            </div>
+            <h3 class="text-muted mb-3">Your wishlist is empty</h3>
+            <p class="text-muted mb-4">Start building your wishlist by adding products you love!</p>
+            <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-shop me-2"></i>Start Shopping
+            </a>
         </div>
     {% endif %}
 </div>
+
+<style>
+    .product-card {
+        transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    
+    .product-card .card-img-top {
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+    
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+</style>
 {% endblock %} 
